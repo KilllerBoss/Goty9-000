@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Leveling Impact</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              background: 'var(--bg-background)',
+              surface: 'var(--bg-surface)',
+              'surface-card': 'var(--bg-surface-card)',
+              primary: '#3E91FF',
+              main: 'var(--text-main)',
+              secondary: 'var(--text-secondary)',
+              border: 'var(--border-color)',
+              highlight: 'var(--bg-highlight)',
+              glass: 'var(--glass-bg)',
+              
+              // RPG Rarity Colors
+              rarity: {
+                common: '#9ca3af',    // Grey
+                uncommon: '#4ade80',  // Green
+                rare: '#60a5fa',      // Blue
+                epic: '#c084fc',      // Purple
+                legendary: '#fbbf24'  // Gold
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'Roboto', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+              serif: ['Cinzel', 'serif'], // RPG Header Font
+            },
+            animation: {
+              'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'liquid': 'liquid 3s linear infinite',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'marquee': 'marquee 20s linear infinite',
+            },
+            keyframes: {
+              slideUp: {
+                '0%': { transform: 'translateY(100%)' },
+                '100%': { transform: 'translateY(0)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' }
+              },
+              liquid: {
+                '0%': { backgroundPosition: '100% 0' },
+                '100%': { backgroundPosition: '-100% 0' }
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-50%)' }
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+      :root {
+        /* Light Mode Defaults - Warm Paper Tone */
+        --bg-background: #f2f4f7;
+        --bg-surface: #F9F5EB; /* Parchment-ish */
+        --bg-surface-card: #ffffff;
+        --text-main: #2D2A26;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --bg-highlight: rgba(0, 0, 0, 0.05);
+        --glass-bg: rgba(249, 245, 235, 0.85);
+      }
+
+      html.dark {
+        --bg-background: #121212;
+        --bg-surface: #1E1C1A; /* Dark textured feeling */
+        --bg-surface-card: #252220;
+        --text-main: #ECE5D5;
+        --text-secondary: #9ca3af;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --bg-highlight: rgba(255, 255, 255, 0.05);
+        --glass-bg: rgba(30, 28, 26, 0.85);
+      }
+
+      html.oled {
+        --bg-background: #000000;
+        --bg-surface: #000000;
+        --bg-surface-card: #0a0a0a;
+        --text-main: #ffffff;
+        --text-secondary: #a3a3a3;
+        --border-color: #333333;
+        --bg-highlight: rgba(255, 255, 255, 0.08);
+        --glass-bg: rgba(0, 0, 0, 0.85);
+      }
+
+      body {
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior-y: none;
+        background-color: var(--bg-background);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      
+      /* Hide Scrollbar */
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* 3D Book Styles */
+      .book-scene {
+        perspective: 1500px;
+      }
+      
+      .book-page {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        transform-origin: left center;
+        transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+        transform-style: preserve-3d;
+      }
+
+      .book-page.flipped {
+        transform: rotateY(-180deg);
+      }
+
+      .page-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        backface-visibility: hidden;
+        overflow: hidden;
+        background-color: #fdf6e3;
+      }
+
+      .page-front {
+        z-index: 2;
+      }
+
+      .page-back {
+        transform: rotateY(180deg);
+        z-index: 1;
+        background-color: #f4eCD8; /* Slightly darker for back */
+      }
+
+      /* Shadow Gradients for Turn Effect */
+      .book-page.flipped .page-front::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+        pointer-events: none;
+      }
+      
+      .book-page.flipped .page-back::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+        pointer-events: none;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "recharts": "https://esm.sh/recharts@^3.6.0"
+  }
+}
+</script>
+</head>
+  <body class="antialiased overflow-hidden selection:bg-blue-500 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
